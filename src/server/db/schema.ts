@@ -176,7 +176,7 @@ export const rules = createTable("rule", {
   ruleCurrentNumber: integer("ruleCurrentNumber").notNull().default(0),
 });
 
-export const rulesRelations = relations(rules, ({one, many}) => ({
+export const rulesRelations = relations(rules, ({one}) => ({
     users: one(users, {
         fields: [rules.ruleOwner],
         references: [users.id]
