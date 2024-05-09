@@ -8,6 +8,7 @@ import {
   text,
   timestamp,
   varchar,
+  boolean,
 } from "drizzle-orm/pg-core";
 import { type AdapterAccount } from "next-auth/adapters";
 
@@ -35,7 +36,7 @@ export const posts = createTable(
   (example) => ({
     createdByIdIdx: index("createdById_idx").on(example.createdById),
     nameIndex: index("name_idx").on(example.name),
-  })
+  }),
 );
 
 export const users = createTable("user", {
@@ -51,6 +52,9 @@ export const users = createTable("user", {
 
 export const usersRelations = relations(users, ({ many }) => ({
   accounts: many(accounts),
+  todos: many(todos),
+  groups: many(groups),
+  rules: many(rules),
 }));
 
 export const accounts = createTable(
@@ -77,7 +81,7 @@ export const accounts = createTable(
       columns: [account.provider, account.providerAccountId],
     }),
     userIdIdx: index("account_userId_idx").on(account.userId),
-  })
+  }),
 );
 
 export const accountsRelations = relations(accounts, ({ one }) => ({
@@ -100,7 +104,7 @@ export const sessions = createTable(
   },
   (session) => ({
     userIdIdx: index("session_userId_idx").on(session.userId),
-  })
+  }),
 );
 
 export const sessionsRelations = relations(sessions, ({ one }) => ({
@@ -119,5 +123,88 @@ export const verificationTokens = createTable(
   },
   (vt) => ({
     compoundKey: primaryKey({ columns: [vt.identifier, vt.token] }),
-  })
+  }),
 );
+
+export const todos = createTable("todo", {
+  todoId: varchar("todoId", { length: 255 }).notNull().primaryKey(),
+  todoOwner: varchar("todoOwner", { length: 255 })
+    .notNull()
+    .references(() => users.id),
+  todoTitle: varchar("todoTitle", { length: 255 }).notNull(),
+  todoDescription: varchar("todoDescription", { length: 255 }),
+  groupId: varchar("groupId", { length: 255 }).default("").references(() => groups.groupId),
+  todoChecked: boolean("todoChecked").notNull(),
+  todoCreatedAt: timestamp("todoCreatedAt", { withTimezone: true })
+    .default(sql`CURRENT_TIMESTAMP`)
+    .notNull(),
+  todoEndAt: timestamp("todoEndAt", { withTimezone: true }),
+  baseRule: varchar("baseRule", { length: 255 }).references(() => rules.ruleId),
+});
+
+export const todosRelations = relations(todos, ({ one }) => ({
+  users: one(users, {
+    fields: [todos.todoOwner],
+    references: [users.id],
+  }),
+  groups: one(groups, {
+    fields: [todos.groupId],
+    references: [groups.groupId],
+  }),
+  rules: one(rules, {
+    fields: [todos.baseRule],
+    references: [rules.ruleId],
+  }),
+}));
+
+export const rules = createTable("rule", {
+  ruleId: varchar("ruleId", { length: 255 }).notNull().primaryKey(),
+  ruleOwner: varchar("ruleOwner", { length: 255 })
+    .notNull()
+    .references(() => users.id),
+  ruleTitle: varchar("ruleTitle", { length: 255 }).notNull(),
+  ruleDescription: varchar("ruleDescription", { length: 255 }),
+  ruleType: text("ruleType", {
+    enum: ["conditional-add", "planned-toggle-group"],
+  }).notNull(),
+  ruleDetail: text("ruleDetail").array(),
+  ruleEnable: boolean("ruleEnable").notNull(),
+  ruleCreatedAt: timestamp("ruleCreatedAt", { withTimezone: true })
+    .default(sql`CURRENT_TIMESTAMP`)
+    .notNull(),
+  ruleGateNumber: integer("ruleGateNumber").notNull(),
+  ruleCurrentNumber: integer("ruleCurrentNumber").notNull().default(0),
+});
+
+export const rulesRelations = relations(rules, ({one, many}) => ({
+    users: one(users, {
+        fields: [rules.ruleOwner],
+        references: [users.id]
+    }),
+}))
+
+export const groups = createTable("group", {
+  groupId: varchar("groupId", { length: 255 }).notNull().primaryKey(),
+  groupOwner: varchar("groupOwner", { length: 255 })
+    .notNull()
+    .references(() => users.id),
+  groupTitle: varchar("groupTitle", { length: 255 }).notNull(),
+  groupDescription: varchar("groupDescription", { length: 255 }),
+  groupCreatedAt: timestamp("groupCreatedAt", { withTimezone: true })
+    .default(sql`CURRENT_TIMESTAMP`)
+    .notNull(),
+  groupInvisible: boolean("groupInvisible").notNull(),
+  baseRule: varchar("baseRule", { length: 255 }).references(() => rules.ruleId),
+});
+
+export const groupsRelations = relations(groups, ({one, many}) => ({
+    users: one(users, {
+        fields: [groups.groupOwner],
+        references: [users.id]
+    }),
+    todos: many(todos),
+    rules: one(rules, {
+        fields: [groups.baseRule],
+        references: [rules.ruleId]
+    })
+}))
