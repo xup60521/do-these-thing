@@ -12,41 +12,31 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { api } from "@/trpc/react";
-import { type InferSelectModel } from "drizzle-orm";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { toast } from "sonner";
-import { type groups as Groups } from "@/server/db/schema";
-import { useRouter } from "next/navigation";
-import ReactSelect from "react-select";
 
-export default function CreateTodo({
+export default function CreateGroup({
   children,
-  groups,
 }: {
   children: React.ReactNode;
-  groups: InferSelectModel<typeof Groups>[];
 }) {
   const [open, setOpen] = useState(false);
   const [inputName, setInputName] = useState("");
   const [inputDescription, setInputDescription] = useState("");
-  const [selectedGroup, setSelectedGroup] = useState<string | null>(null);
-  const router = useRouter();
-  const mutation = api.todo.createTodo.useMutation();
-  const selectOptions = [
-    { label: "default", value: null },
-    ...groups.map((d) => ({ label: d.groupTitle, value: d.groupId })),
-  ];
+  const mutation = api.todo.createGroup.useMutation();
+  const router = useRouter()
   function handleAdd() {
     if (!inputName && !inputDescription) {
       toast("No input name and description");
       return;
     }
     mutation.mutate({
-      todoTitle: inputName,
-      todoDescription: inputDescription,
-      groupId: selectedGroup,
+        groupTitle: inputName,
+        groupDescription: inputDescription,
+        groupInvisible: false,
     });
-    router.refresh();
+    router.refresh()
     onClose(false);
   }
   function onClose(e: boolean) {
@@ -60,9 +50,9 @@ export default function CreateTodo({
       <DialogTrigger asChild>{children}</DialogTrigger>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>New To-do</DialogTitle>
+          <DialogTitle>New Group</DialogTitle>
           <DialogDescription>
-            Enter title, description to create a to-do.
+            Enter title, description to create a group.
           </DialogDescription>
         </DialogHeader>
         <div className="flex flex-col gap-4">
@@ -86,21 +76,10 @@ export default function CreateTodo({
               maxLength={255}
             />
           </div>
-          <div className="grid grid-cols-4 items-center">
+          {/* <div className="grid grid-cols-4 items-center">
             <Label htmlFor="input-group">group</Label>
-            <ReactSelect
-            className="col-span-3"
-              options={selectOptions}
-              defaultValue={
-                { label: "default", value: null } as {
-                  label: string;
-                  value: string | null;
-                }
-              }
-              onChange={(e) => setSelectedGroup(e?.value ?? null)}
-            />
-            {/* {JSON.stringify(selectedGroup)} */}
-          </div>
+            <Input id="input-group" className="col-span-3" />
+          </div> */}
         </div>
         <DialogFooter>
           <Button onClick={handleAdd}>Add</Button>

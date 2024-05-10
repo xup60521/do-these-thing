@@ -6,7 +6,7 @@ import { FaGithub } from "react-icons/fa";
 export default async function Page() {
   const session = await getServerAuthSession();
   if (session) {
-    redirect("/do-these-thing");
+    redirect("/do-these-things");
   }
   return (
     <div className="flex h-screen w-screen flex-col items-center justify-center gap-16 overflow-hidden bg-gradient-to-b from-neutral-900 to-violet-900 text-white">

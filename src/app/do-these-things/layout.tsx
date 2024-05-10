@@ -23,25 +23,25 @@ export default async function Layout({
           <nav className="flex font-mono text-neutral-700">
             <Link
               className="rounded-full px-4 py-2 transition hover:bg-neutral-200"
-              href="/do-these-thing"
+              href="/do-these-things"
             >
               Overview
             </Link>
             <Link
               className="rounded-full px-4 py-2 transition hover:bg-neutral-200"
-              href="/do-these-thing/task-library"
+              href="/do-these-things/task-library"
             >
               Task Library
             </Link>
             <Link
               className="rounded-full px-4 py-2 transition hover:bg-neutral-200"
-              href="/do-these-thing/group"
+              href="/do-these-things/group"
             >
               Groups
             </Link>
             <Link
               className="rounded-full px-4 py-2 transition hover:bg-neutral-200"
-              href="/do-these-thing/rule"
+              href="/do-these-things/rule"
             >
               Rule
             </Link>

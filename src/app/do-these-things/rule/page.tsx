@@ -7,7 +7,7 @@ export default async function Rule() {
     redirect("/");
   }
   return (
-    <div className="flex w-[70rem] max-w-full flex-col">
+    <div className="flex w-[70rem] max-w-full flex-col px-16">
       <h1 className="w-full py-16 text-left font-mono text-2xl font-bold">
         Rule
       </h1>
