@@ -22,9 +22,9 @@ export default function DisplayTodo({
   }
 
   return (
-    <div className="flex w-fit gap-2">
+    <div className="flex max-w-fit gap-2">
       <Checkbox checked={checked} onCheckedChange={checkTodo} className={`${mutation.isPending && "cursor-wait"}`} />
-      <Link href={`/do-these-things/task-library/${item.todoId}`} className={`${mutation.isPending ? "cursor-wait" : "cursor-pointer"} text-sm -translate-y-[0.15rem]`}>{item.todoTitle}</Link>
+      <Link href={`/do-these-things/task-library/${item.todoId}`} className={`${mutation.isPending ? "cursor-wait" : "cursor-pointer"} text-sm -translate-y-[0.15rem] text-wrap min-w-0 break-words`}>{item.todoTitle}</Link>
     </div>
   );
 }

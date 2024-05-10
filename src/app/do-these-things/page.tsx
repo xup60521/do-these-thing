@@ -46,13 +46,13 @@ export default async function Page() {
               </button>
             </CreateTodo>
           </div>
-          <div className="flex w-full flex-grow  flex-wrap gap-2 py-4">
-            <div className="flex h-48 w-36 flex-col gap-3 rounded-2xl bg-white">
-              <h4 className="w-full pt-4 text-center font-mono text-sm text-neutral-700">
+          <div className="flex w-full flex-grow  flex-wrap gap-4 py-4">
+            <div className="flex h-48 w-40 flex-col gap-3">
+            <h4 className="w-full text-left font-mono pb-2 text-sm text-neutral-700 truncate">
                 <Link href={`/do-these-things/group/default`}>default</Link>
               </h4>
-              <ScrollArea>
-                <div className="flex flex-col gap-3 px-4 pb-2">
+              <ScrollArea className="w-40 h-full">
+                <div className="flex flex-col gap-3 w-40 pr-2">
                   {defaultTodos
                     .filter((d) => !d.groupId)
                     .sort((a, b) => {
@@ -72,16 +72,16 @@ export default async function Page() {
               }
               return (
                 <div
-                  className="flex h-48 w-36 flex-col gap-3 rounded-2xl bg-white"
+                  className="flex h-48 w-40 flex-col gap-3"
                   key={item.groupId}
                 >
-                  <h4 className="w-full pt-4 text-center font-mono text-sm text-neutral-700">
+                  <h4 className="w-full text-left font-mono pb-2 text-sm text-neutral-700 truncate">
                     <Link href={`/do-these-things/group/${item.groupId}`}>
                       {item.groupTitle}
                     </Link>
                   </h4>
-                  <ScrollArea>
-                    <div className="flex flex-col gap-3 px-4 pb-2">
+                  <ScrollArea className="w-40 h-full">
+                    <div className="flex flex-col gap-3 w-40 pr-2 justify-start">
                       {item.todos
                         .filter((d) => d.groupId === item.groupId)
                         .sort((a, b) => {

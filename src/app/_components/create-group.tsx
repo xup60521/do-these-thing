@@ -28,18 +28,20 @@ export default function CreateGroup({
   const [inputHidden, setInputHidden] = useState(false);
   const mutation = api.todo.createGroup.useMutation();
   const router = useRouter();
-  function handleAdd() {
+  async function handleAdd() {
     if (!inputName && !inputDescription) {
       toast("No input name and description");
       return;
     }
-    mutation.mutate({
+    mutation.mutateAsync({
       groupTitle: inputName,
       groupDescription: inputDescription,
       groupInvisible: inputHidden,
-    });
-    router.refresh();
-    onClose(false);
+    }).then(()=>{
+        router.refresh();
+        onClose(false);
+
+    }).catch(err => alert(err));
   }
   function onClose(e: boolean) {
     setOpen(e);
@@ -51,7 +53,7 @@ export default function CreateGroup({
   return (
     <Dialog open={open} onOpenChange={onClose}>
       <DialogTrigger asChild>{children}</DialogTrigger>
-      <DialogContent>
+      <DialogContent className={`${mutation.isPending && "cursor-wait"}`}>
         <DialogHeader>
           <DialogTitle>New Group</DialogTitle>
           <DialogDescription>
@@ -92,7 +94,7 @@ export default function CreateGroup({
           </div> */}
         </div>
         <DialogFooter>
-          <Button onClick={handleAdd}>Add</Button>
+          <Button onClick={handleAdd} className={`${mutation.isPending && "cursor-wait"}`}>Add</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>

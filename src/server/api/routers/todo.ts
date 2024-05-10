@@ -3,7 +3,7 @@ import { createTRPCRouter, protectedProcedure } from "@/server/api/trpc";
 import { groups, todos } from "@/server/db/schema";
 import { v4 } from "uuid";
 import { revalidatePath } from "next/cache";
-import { eq } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 
 export const todoRouter = createTRPCRouter({
   createTodo: protectedProcedure
@@ -76,5 +76,24 @@ export const todoRouter = createTRPCRouter({
         .where(eq(groups.groupId, groupId));
       revalidatePath("/do-these-things");
       revalidatePath("/do-these-things/group");
+    }),
+  deleteGroup: protectedProcedure
+    .input(
+      z.object({
+        groupId: z.string(),
+        deleteRelatives: z.boolean(),
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      const { groupId, deleteRelatives } = input;
+      if (deleteRelatives) {
+        await ctx.db.delete(todos).where(eq(todos.groupId, groupId));
+      } else {
+        await ctx.db
+          .update(todos)
+          .set({ groupId: null })
+          .where(eq(todos.groupId, groupId));
+      }
+      await ctx.db.delete(groups).where(eq(groups.groupId, groupId));
     }),
 });

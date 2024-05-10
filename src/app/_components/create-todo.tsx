@@ -58,7 +58,7 @@ export default function CreateTodo({
   return (
     <Dialog open={open} onOpenChange={onClose}>
       <DialogTrigger asChild>{children}</DialogTrigger>
-      <DialogContent>
+      <DialogContent className={`${mutation.isPending && "cursor-wait"}`}>
         <DialogHeader>
           <DialogTitle>New To-do</DialogTitle>
           <DialogDescription>
@@ -103,7 +103,7 @@ export default function CreateTodo({
           </div>
         </div>
         <DialogFooter>
-          <Button onClick={handleAdd}>Add</Button>
+          <Button onClick={handleAdd} className={`${mutation.isPending && "cursor-wait"}`}>Add</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
