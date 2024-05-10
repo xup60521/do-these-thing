@@ -59,4 +59,22 @@ export const todoRouter = createTRPCRouter({
       revalidatePath("/do-these-things");
       revalidatePath("/do-these-things/group");
     }),
+  editGroup: protectedProcedure
+    .input(
+      z.object({
+        groupId: z.string(),
+        groupTitle: z.string(),
+        groupDescription: z.string().nullable(),
+        groupInvisible: z.boolean(),
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      const { groupTitle, groupDescription, groupId, groupInvisible } = input;
+      await ctx.db
+        .update(groups)
+        .set({ groupTitle, groupDescription, groupInvisible })
+        .where(eq(groups.groupId, groupId));
+      revalidatePath("/do-these-things");
+      revalidatePath("/do-these-things/group");
+    }),
 });

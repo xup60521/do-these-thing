@@ -31,7 +31,7 @@ export default async function Group() {
   return (
     <div className="flex w-[70rem] max-w-full flex-col px-16">
       <h1 className="w-full py-16 text-left font-mono text-2xl font-bold">
-        <span>Group</span>
+        <span>Groups</span>
       </h1>
       <div className="flex min-h-0 w-full min-w-0 flex-col">
         <div className="flex w-full flex-wrap">
@@ -69,7 +69,35 @@ export default async function Group() {
                 <span className="text-center font-mono text-sm">{`${defaultGroup.filter((d) => d.todoChecked).length}`}</span>
               </div>
             </Link>
-            {groups.map((item) => (
+            {groups.filter(d => !d.groupInvisible).map((item) => (
+              <Link
+              href={`group/${item.groupId}`}
+              className="flex h-fit items-center rounded-md bg-white"
+                key={`group itr ${item.groupId}`}
+              >
+                <h4 className="w-full p-2 font-mono text-sm text-neutral-700">
+                  {item.groupTitle}
+                </h4>
+                <div className="flex items-center py-2 justify-center gap-1 rounded-l bg-orange-200 px-2 text-red-700">
+                  <span className="text-center">
+                    <MdCheckBoxOutlineBlank />
+                  </span>
+                  <span className="text-center font-mono text-sm">{`${item.todos.filter((d) => !d.todoChecked).length}`}</span>
+                </div>
+                <div className="flex items-center py-2 justify-center gap-1 rounded-r-md bg-green-200 px-2 text-neutral-700">
+                  <span className="text-center">
+                    <MdCheckBox />
+                  </span>
+                  <span className="text-center font-mono text-sm">{`${item.todos.filter((d) => d.todoChecked).length}`}</span>
+                </div>
+              </Link>
+            ))}
+          </div>
+          <div className="flex w-full items-center gap-2 border-b-[1px] border-neutral-400 py-2 font-bold text-neutral-500">
+            <span>hidden</span>
+          </div>
+          <div className="flex w-full flex-grow flex-wrap gap-2 py-4">
+          {groups.filter(d => d.groupInvisible).map((item) => (
               <Link
               href={`group/${item.groupId}`}
               className="flex h-fit items-center rounded-md bg-white"

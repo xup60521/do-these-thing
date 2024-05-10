@@ -3,6 +3,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import type { todos as TodosType } from "@/server/db/schema";
 import { api } from "@/trpc/react";
 import { type InferSelectModel } from "drizzle-orm";
+import Link from "next/link";
 import { useState } from "react";
 export default function DisplayTodo({
   item,
@@ -21,9 +22,9 @@ export default function DisplayTodo({
   }
 
   return (
-    <div className="flex w-full gap-2">
+    <div className="flex w-fit gap-2">
       <Checkbox checked={checked} onCheckedChange={checkTodo} className={`${mutation.isPending && "cursor-wait"}`} />
-      <span className={`${mutation.isPending ? "cursor-wait" : "cursor-pointer"} text-sm -translate-y-[0.15rem]`}>{item.todoTitle}</span>
+      <Link href={`/do-these-things/task-library/${item.todoId}`} className={`${mutation.isPending ? "cursor-wait" : "cursor-pointer"} text-sm -translate-y-[0.15rem]`}>{item.todoTitle}</Link>
     </div>
   );
 }

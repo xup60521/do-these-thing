@@ -17,7 +17,7 @@ export default async function Page() {
     where: (fields, { eq }) => eq(fields.todoOwner, session.user.id),
   });
   const groups = await db.query.groups.findMany({
-    where: (fields, {and, eq}) => and(eq(fields.groupInvisible, false), eq(fields.groupOwner, session.user.id)),
+    where: (fields, {eq}) => eq(fields.groupOwner, session.user.id),
     with: {
       todos: true,
     },
@@ -66,7 +66,7 @@ export default async function Page() {
                 </div>
               </ScrollArea>
             </div>
-            {groups.map((item) => {
+            {groups.filter(d => !d.groupInvisible).map((item) => {
               if (item.todos.length === 0) {
                 return null;
               }
