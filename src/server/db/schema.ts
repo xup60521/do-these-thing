@@ -157,6 +157,17 @@ export const todosRelations = relations(todos, ({ one }) => ({
   }),
 }));
 
+type FromGroup = string
+type ToGroup = string
+type TargetNumber = string
+type TargetTodoName = string
+type TargetGroupVisibility = string // 0, 1
+type RuleDetailType = 
+[FromGroup, ToGroup, TargetNumber, TargetTodoName] | 
+[FromGroup, ToGroup, TargetGroupVisibility]
+
+export const ruleTypeEnum = ["conditional-add", "planned-toggle-group"] as [string, ...string[]]
+
 export const rules = createTable("rule", {
   ruleId: varchar("ruleId", { length: 255 }).notNull().primaryKey(),
   ruleOwner: varchar("ruleOwner", { length: 255 })
@@ -165,16 +176,17 @@ export const rules = createTable("rule", {
   ruleTitle: varchar("ruleTitle", { length: 255 }).notNull(),
   ruleDescription: varchar("ruleDescription", { length: 255 }),
   ruleType: text("ruleType", {
-    enum: ["conditional-add", "planned-toggle-group"],
+    enum: ruleTypeEnum,
   }).notNull(),
-  ruleDetail: text("ruleDetail").array(),
+  ruleDetail: text("ruleDetail").array().$type<RuleDetailType>(),
   ruleEnable: boolean("ruleEnable").notNull(),
   ruleCreatedAt: timestamp("ruleCreatedAt", { withTimezone: true })
     .default(sql`CURRENT_TIMESTAMP`)
     .notNull(),
   ruleGateNumber: integer("ruleGateNumber").notNull(),
-  ruleCurrentNumber: integer("ruleCurrentNumber").notNull().default(0),
+  ruleCurrentNumber: integer("ruleCurrentNumber").default(0).notNull(),
 });
+
 
 export const rulesRelations = relations(rules, ({one}) => ({
     users: one(users, {

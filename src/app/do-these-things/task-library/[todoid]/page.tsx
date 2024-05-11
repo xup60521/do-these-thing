@@ -1,6 +1,5 @@
 import EditTodo from "@/app/_components/edit-todo";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Dialog } from "@/components/ui/dialog";
 import { getServerAuthSession } from "@/server/auth";
 import { db } from "@/server/db";
 import { api } from "@/trpc/server";

@@ -19,7 +19,7 @@ import { type InferSelectModel } from "drizzle-orm";
 import { Fragment, useState } from "react";
 import ReactSelect from "react-select";
 import { toast } from "sonner";
-import { AlertDialog, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
+import { AlertDialog, AlertDialogCancel, AlertDialogContent, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { useRouter } from "next/navigation";
 
 export default function EditTodo({
@@ -118,7 +118,7 @@ export default function EditTodo({
               />
             </div>
           </div>
-          <DialogFooter>
+          <DialogFooter className="gap-1">
             <Button variant="destructive" onClick={()=>{
                 setOpenDialog(false)
                 setOpenAlertDialog(true)
@@ -132,7 +132,7 @@ export default function EditTodo({
                 <AlertDialogHeader>
                     <AlertDialogTitle>Delete a to-do</AlertDialogTitle>
                 </AlertDialogHeader>
-                <AlertDialogFooter>
+                <AlertDialogFooter className="">
                     <AlertDialogCancel>Cancel</AlertDialogCancel>
                     <Button onClick={handleDeleteTodo} className={`${deleteTodoMutation.isPending && "cursor-wait"}`}>Sure</Button>
                 </AlertDialogFooter>

@@ -19,7 +19,7 @@ import { toast } from "sonner";
 import { api } from "@/trpc/react";
 import { useRouter } from "next/navigation";
 import { Checkbox } from "@/components/ui/checkbox";
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
+import { AlertDialog, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 
 export default function EditGroup({
   group,
@@ -133,7 +133,7 @@ export default function EditGroup({
               />
             </div>
           </div>
-          <DialogFooter>
+          <DialogFooter className="gap-1">
             <Button variant={"destructive"} onClick={()=>{
                 setOpen(false)
                 setOpenAlert(true)

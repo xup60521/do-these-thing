@@ -51,8 +51,8 @@ export default async function Page() {
               <h4 className="w-full truncate pb-2 text-left font-mono text-sm text-neutral-700">
                 <Link href={`/do-these-things/group/default`}>default</Link>
               </h4>
-              <ScrollArea className="h-full flex">
-                <div className="flex max-w-full flex-shrink min-w-0 w-full flex-col gap-3 pr-2 sm:w-40">
+              <ScrollArea className="flex h-full">
+                <div className="flex w-full min-w-0 max-w-full flex-shrink flex-col gap-3 pr-2 sm:w-40">
                   {defaultTodos
                     .filter((d) => !d.groupId)
                     .sort((a, b) => {
@@ -73,32 +73,32 @@ export default async function Page() {
                   return null;
                 }
                 return (
-                  <div
-                    className="flex h-48 w-full flex-col gap-3 sm:w-40"
-                    key={item.groupId}
-                  >
-                    <h4 className="w-full truncate pb-2 text-left font-mono text-sm text-neutral-700">
-                      <Link href={`/do-these-things/group/${item.groupId}`}>
-                        {item.groupTitle}
-                      </Link>
-                    </h4>
-                    <ScrollArea className="h-full w-40">
-                      <div className="flex w-full flex-col gap-3 pr-2 sm:w-40">
-                        {item.todos
-                          .filter((d) => d.groupId === item.groupId)
-                          .sort((a, b) => {
-                            return (
-                              (a.todoChecked ? 1 : 0) - (b.todoChecked ? 1 : 0)
-                            );
-                          })
-                          .map((item) => (
-                            <Fragment key={item.todoId}>
-                              <DisplayTodo item={item} />
-                            </Fragment>
-                          ))}
-                      </div>
-                    </ScrollArea>
-                  </div>
+                  <Fragment key={item.groupId}>
+                    <div className="flex h-48 w-full flex-col gap-3 sm:w-40">
+                      <h4 className="w-full truncate pb-2 text-left font-mono text-sm text-neutral-700">
+                        <Link href={`/do-these-things/group/${item.groupId}`}>
+                          {item.groupTitle}
+                        </Link>
+                      </h4>
+                      <ScrollArea className="h-full w-40">
+                        <div className="flex w-full flex-col gap-3 pr-2 sm:w-40">
+                          {item.todos
+                            .filter((d) => d.groupId === item.groupId)
+                            .sort((a, b) => {
+                              return (
+                                (a.todoChecked ? 1 : 0) -
+                                (b.todoChecked ? 1 : 0)
+                              );
+                            })
+                            .map((item) => (
+                              <Fragment key={item.todoId}>
+                                <DisplayTodo item={item} />
+                              </Fragment>
+                            ))}
+                        </div>
+                      </ScrollArea>
+                    </div>
+                  </Fragment>
                 );
               })}
           </div>

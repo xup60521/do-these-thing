@@ -53,9 +53,13 @@ export default async function TaskLibrary() {
               >
                 Default
               </Link>
-              {defaultTodos.map((item) => (
-                <DisplayTodo item={item} key={item.todoId} />
-              ))}
+              {defaultTodos
+                .sort((a, b) => {
+                  return (a.todoChecked ? 1 : 0) - (b.todoChecked ? 1 : 0);
+                })
+                .map((item) => (
+                  <DisplayTodo item={item} key={item.todoId} />
+                ))}
             </div>
             {groups.map((group) => {
               if (group.todos.length === 0) {
@@ -63,7 +67,7 @@ export default async function TaskLibrary() {
               }
               return (
                 <Fragment key={group.groupId}>
-                  <div className="flex w-full mb-2 items-center gap-2 border-b-[1px] border-neutral-400 font-bold text-neutral-500"></div>
+                  <div className="mb-2 flex w-full items-center gap-2 border-b-[1px] border-neutral-400 font-bold text-neutral-500"></div>
                   <div className="flex w-full flex-wrap items-center gap-3">
                     <Link
                       href={`/do-these-things/group/${group.groupId}`}
@@ -72,13 +76,19 @@ export default async function TaskLibrary() {
                       {group.groupTitle}
                     </Link>
                     {group.groupInvisible && (
-                      <div className="-translate-y-[0.15rem] rounded-full p-1 px-2 font-mono text-xs bg-red-400 text-white">
+                      <div className="-translate-y-[0.15rem] rounded-full bg-red-400 p-1 px-2 font-mono text-xs text-white">
                         {"hidden"}
                       </div>
                     )}
-                    {group.todos.map((item) => (
-                      <DisplayTodo item={item} key={item.todoId} />
-                    ))}
+                    {group.todos
+                      .sort((a, b) => {
+                        return (
+                          (a.todoChecked ? 1 : 0) - (b.todoChecked ? 1 : 0)
+                        );
+                      })
+                      .map((item) => (
+                        <DisplayTodo item={item} key={item.todoId} />
+                      ))}
                   </div>
                 </Fragment>
               );

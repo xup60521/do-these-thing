@@ -44,9 +44,9 @@ export default async function Layout({
             </Link>
             <Link
               className="rounded-full px-4 py-2 transition hover:bg-neutral-200"
-              href="/do-these-things/rule"
+              href="/do-these-things/rules"
             >
-              Rule
+              Rules
             </Link>
           </nav>
         </div>
