@@ -41,6 +41,33 @@ export const todoRouter = createTRPCRouter({
       revalidatePath("/do-these-things");
       revalidatePath("/do-these-things/group");
     }),
+  editTodo: protectedProcedure
+    .input(
+      z.object({
+        todoId: z.string(),
+        todoTitle: z.string(),
+        todoDescription: z.string().nullable(),
+        todoGroup: z.string().nullable(),
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+        await ctx.db.update(todos).set({
+            todoTitle: input.todoTitle,
+            todoDescription: input.todoDescription,
+            groupId: input.todoGroup
+        }).where(eq(todos.todoId, input.todoId))
+        revalidatePath("/do-these-things");
+        revalidatePath("/do-these-things/task-library");
+        revalidatePath("/do-these-things/group");
+    }),
+    deleteTodo: protectedProcedure.input(z.object({
+        todoId: z.string(),
+    })).mutation(async ({ctx, input}) => {
+        await ctx.db.delete(todos).where(eq(todos.todoId, input.todoId))
+        revalidatePath("/do-these-things");
+        revalidatePath("/do-these-things/task-library");
+        revalidatePath("/do-these-things/group");
+    }),
   createGroup: protectedProcedure
     .input(
       z.object({

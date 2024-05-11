@@ -89,7 +89,8 @@ export default function CreateTodo({
           <div className="grid grid-cols-4 items-center">
             <Label htmlFor="input-group">group</Label>
             <ReactSelect
-            className="col-span-3"
+              id="input-group"
+              className="col-span-3"
               options={selectOptions}
               defaultValue={
                 { label: "default", value: null } as {
@@ -103,7 +104,12 @@ export default function CreateTodo({
           </div>
         </div>
         <DialogFooter>
-          <Button onClick={handleAdd} className={`${mutation.isPending && "cursor-wait"}`}>Add</Button>
+          <Button
+            onClick={handleAdd}
+            className={`${mutation.isPending && "cursor-wait"}`}
+          >
+            Add
+          </Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>

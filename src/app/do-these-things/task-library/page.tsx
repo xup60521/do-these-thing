@@ -72,8 +72,8 @@ export default async function TaskLibrary() {
                       {group.groupTitle}
                     </Link>
                     {group.groupInvisible && (
-                      <div className="-translate-y-1 rounded-full bg-red-400 p-1 px-2 font-mono text-xs text-white">
-                        hidden
+                      <div className="-translate-y-[0.15rem] rounded-full p-1 px-2 font-mono text-xs bg-red-400 text-white">
+                        {"hidden"}
                       </div>
                     )}
                     {group.todos.map((item) => (

@@ -1,5 +1,6 @@
 import DisplayTodo from "@/app/_components/display-todo";
 import EditGroup from "@/app/_components/edit-group";
+import { Label } from "@/components/ui/label";
 import { getServerAuthSession } from "@/server/auth";
 import { db } from "@/server/db";
 import { redirect } from "next/navigation";
@@ -17,7 +18,7 @@ export default async function GroupId({
   const { groupid } = params;
   const group =
     groupid === "default"
-      ? { groupTitle: "default", groupDescription: "" }
+      ? { groupTitle: "default", groupDescription: "", groupInvisible: false }
       : await db.query.groups.findFirst({
           where: (fields, { and, eq }) =>
             and(
@@ -40,18 +41,25 @@ export default async function GroupId({
   });
   return (
     <div className="flex w-[70rem] max-w-full flex-col px-16">
-      <h1 className="w-full py-12 pt-16 text-left font-mono text-2xl font-bold">
-        <p className="flex items-center gap-3">
+      <h1 className="flex w-full flex-col gap-2 py-12 pt-16 text-left font-mono text-2xl font-bold">
+        <div className="flex items-center gap-3">
           <span>{group?.groupTitle}</span>
+          {group.groupInvisible && (
+            <Label htmlFor="edit group">
+              <div className="w-fit cursor-pointer rounded-full bg-red-400 p-1 px-2 font-mono text-xs text-white">
+                {"hidden"}
+              </div>
+            </Label>
+          )}
           {groupid !== "default" && (
             <EditGroup group={group}>
-              <button className="translate-y-[0.05rem] rounded-full bg-white p-2 text-sm ring-green-200 transition hover:ring-2">
+              <button id="edit group" className="translate-y-[0.05rem] rounded-full bg-white p-2 text-sm ring-green-200 transition hover:ring-2">
                 <MdEdit />
               </button>
             </EditGroup>
           )}
-        </p>
-        <span className="flex items-center gap-2 pt-3 text-sm text-neutral-500">
+        </div>
+        <span className="flex items-center gap-2 text-sm text-neutral-500">
           {group?.groupDescription}
         </span>
       </h1>

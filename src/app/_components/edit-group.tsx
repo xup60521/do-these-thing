@@ -77,7 +77,7 @@ export default function EditGroup({
       .catch((err) => alert(err));
   }
   function onAlertClose(e: boolean) {
-    setOpenAlert(false)
+    setOpenAlert(e)
     setDeleteRelateTodos(false)
   }
   async function handleDeleteGroup() {
