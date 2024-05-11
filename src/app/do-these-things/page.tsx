@@ -17,7 +17,7 @@ export default async function Page() {
     where: (fields, { eq }) => eq(fields.todoOwner, session.user.id),
   });
   const groups = await db.query.groups.findMany({
-    where: (fields, {eq}) => eq(fields.groupOwner, session.user.id),
+    where: (fields, { eq }) => eq(fields.groupOwner, session.user.id),
     with: {
       todos: true,
     },
@@ -47,12 +47,12 @@ export default async function Page() {
             </CreateTodo>
           </div>
           <div className="flex w-full flex-grow  flex-wrap gap-4 py-4">
-            <div className="flex h-48 w-40 flex-col gap-3">
-            <h4 className="w-full text-left font-mono pb-2 text-sm text-neutral-700 truncate">
+            <div className="flex h-48 w-full flex-col gap-3 sm:w-40">
+              <h4 className="w-full truncate pb-2 text-left font-mono text-sm text-neutral-700">
                 <Link href={`/do-these-things/group/default`}>default</Link>
               </h4>
-              <ScrollArea className="w-40 h-full">
-                <div className="flex flex-col gap-3 w-40 pr-2">
+              <ScrollArea className="h-full flex">
+                <div className="flex max-w-full flex-shrink min-w-0 w-full flex-col gap-3 pr-2 sm:w-40">
                   {defaultTodos
                     .filter((d) => !d.groupId)
                     .sort((a, b) => {
@@ -66,39 +66,41 @@ export default async function Page() {
                 </div>
               </ScrollArea>
             </div>
-            {groups.filter(d => !d.groupInvisible).map((item) => {
-              if (item.todos.length === 0) {
-                return null;
-              }
-              return (
-                <div
-                  className="flex h-48 w-40 flex-col gap-3"
-                  key={item.groupId}
-                >
-                  <h4 className="w-full text-left font-mono pb-2 text-sm text-neutral-700 truncate">
-                    <Link href={`/do-these-things/group/${item.groupId}`}>
-                      {item.groupTitle}
-                    </Link>
-                  </h4>
-                  <ScrollArea className="w-40 h-full">
-                    <div className="flex flex-col gap-3 w-40 pr-2 justify-start">
-                      {item.todos
-                        .filter((d) => d.groupId === item.groupId)
-                        .sort((a, b) => {
-                          return (
-                            (a.todoChecked ? 1 : 0) - (b.todoChecked ? 1 : 0)
-                          );
-                        })
-                        .map((item) => (
-                          <Fragment key={item.todoId}>
-                            <DisplayTodo item={item} />
-                          </Fragment>
-                        ))}
-                    </div>
-                  </ScrollArea>
-                </div>
-              );
-            })}
+            {groups
+              .filter((d) => !d.groupInvisible)
+              .map((item) => {
+                if (item.todos.length === 0) {
+                  return null;
+                }
+                return (
+                  <div
+                    className="flex h-48 w-full flex-col gap-3 sm:w-40"
+                    key={item.groupId}
+                  >
+                    <h4 className="w-full truncate pb-2 text-left font-mono text-sm text-neutral-700">
+                      <Link href={`/do-these-things/group/${item.groupId}`}>
+                        {item.groupTitle}
+                      </Link>
+                    </h4>
+                    <ScrollArea className="h-full w-40">
+                      <div className="flex w-full flex-col gap-3 pr-2 sm:w-40">
+                        {item.todos
+                          .filter((d) => d.groupId === item.groupId)
+                          .sort((a, b) => {
+                            return (
+                              (a.todoChecked ? 1 : 0) - (b.todoChecked ? 1 : 0)
+                            );
+                          })
+                          .map((item) => (
+                            <Fragment key={item.todoId}>
+                              <DisplayTodo item={item} />
+                            </Fragment>
+                          ))}
+                      </div>
+                    </ScrollArea>
+                  </div>
+                );
+              })}
           </div>
         </div>
       </div>

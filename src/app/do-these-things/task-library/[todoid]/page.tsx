@@ -26,8 +26,8 @@ export default async function Page({ params }: { params: { todoid: string } }) {
     redirect("/do-these-things/task-library");
   }
   const groups = await db.query.groups.findMany({
-    where: ((f, {eq}) => eq(f.groupOwner, session.user.id))
-  })
+    where: (f, { eq }) => eq(f.groupOwner, session.user.id),
+  });
   async function handleCheckTodo() {
     "use server";
     if (!todo) {
@@ -43,19 +43,18 @@ export default async function Page({ params }: { params: { todoid: string } }) {
   return (
     <div className="flex w-[70rem] max-w-full flex-col px-16">
       <h1 className="flex w-full flex-col gap-2 py-12 pt-16 text-left font-mono text-2xl font-bold">
-      <div className="flex items-center gap-2 text-neutral-500 text-sm">
-              <span>Checked: </span>
-              <form action={handleCheckTodo}>
-                <Checkbox
-                  className="translate-y-[0.175rem]"
-                  checked={todo.todoChecked}
-                  type="submit"
-                />
-              </form>
-            </div>
-        <div className="flex items-center gap-3">
-            
-          <span>{todo.todoTitle}</span>
+        <div className="flex items-center gap-2 text-sm text-neutral-500">
+          <span>Checked: </span>
+          <form action={handleCheckTodo}>
+            <Checkbox
+              className="translate-y-[0.175rem]"
+              checked={todo.todoChecked}
+              type="submit"
+            />
+          </form>
+        </div>
+        <div className="flex items-center gap-3 min-w-0">
+          <span className="flex-shrink text-wrap break-words max-w-full">{todo.todoTitle}</span>
           <EditTodo todo={todo} groups={groups}>
             <button
               id="edit group"
@@ -65,7 +64,10 @@ export default async function Page({ params }: { params: { todoid: string } }) {
             </button>
           </EditTodo>
         </div>
-        <Link href={`/do-these-things/group/${todo.groupId ?? "default"}`} className="flex items-center gap-2 text-sm text-neutral-500">
+        <Link
+          href={`/do-these-things/group/${todo.groupId ?? "default"}`}
+          className="flex items-center gap-2 text-sm text-neutral-500"
+        >
           {todo.groups?.groupTitle ?? "default"}
         </Link>
       </h1>
@@ -73,7 +75,6 @@ export default async function Page({ params }: { params: { todoid: string } }) {
         <div className="flex w-full flex-wrap">
           <div className="flex w-full items-center justify-between gap-2 border-b-[1px] border-neutral-400 py-2 font-bold text-neutral-500">
             <span>Description</span>
-            
           </div>
           <div className="flex w-full flex-grow flex-wrap gap-3 py-4">
             {todo.todoDescription}

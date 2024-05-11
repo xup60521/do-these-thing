@@ -6,6 +6,9 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import Link from "next/link";
+import { Button } from "@/components/ui/button";
+import { MdMenu } from "react-icons/md";
+import NavSheetMenu from "../_components/nav-sheet-menu";
 
 export default async function Layout({
   children,
@@ -16,11 +19,11 @@ export default async function Layout({
   return (
     <div className="flex h-screen w-screen flex-col overflow-hidden bg-stone-100">
       <header className="flex w-full items-center justify-between bg-neutral-50 p-4">
-        <div className="flex items-center gap-2">
-          <span className="rounded-lg border-2 border-violet-900 bg-violet-900 px-2 font-mono font-bold text-white">
+        <div className="flex min-w-0 items-center gap-2">
+          <Link href="/do-these-things" className="rounded-lg border-2 border-violet-900 bg-violet-900 px-2 font-mono font-bold text-white">
             Do-These-Things
-          </span>
-          <nav className="flex font-mono text-neutral-700">
+          </Link>
+          <nav className="hidden font-mono text-neutral-700 sm:flex">
             <Link
               className="rounded-full px-4 py-2 transition hover:bg-neutral-200"
               href="/do-these-things"
@@ -47,7 +50,7 @@ export default async function Layout({
             </Link>
           </nav>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-3">
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -65,10 +68,18 @@ export default async function Layout({
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
+          <NavSheetMenu>
+            <Button
+              className="flex items-center text-black sm:hidden"
+              variant={"secondary"}
+            >
+              <MdMenu />
+            </Button>
+          </NavSheetMenu>
         </div>
       </header>
 
-      <main className="min-h-0 min-w-0 flex-grow flex flex-col items-center overflow-y-scroll text-black">
+      <main className="flex min-h-0 min-w-0 flex-grow flex-col items-center overflow-y-scroll text-black">
         {children}
       </main>
     </div>
