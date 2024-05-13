@@ -141,7 +141,7 @@ export const todoRouter = createTRPCRouter({
             ruleType,
             ruleDetail,
             ruleEnable: true,
-            "ruleGateNumber": Number(ruleGateNumber),
+            ruleGateNumber,
         })
     })
 });
