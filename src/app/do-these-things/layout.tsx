@@ -40,13 +40,13 @@ export default async function Layout({
               className="rounded-full px-4 py-2 transition hover:bg-neutral-200"
               href="/do-these-things/group"
             >
-              Groups
+              Group
             </Link>
             <Link
               className="rounded-full px-4 py-2 transition hover:bg-neutral-200"
-              href="/do-these-things/rules"
+              href="/do-these-things/rule"
             >
-              Rules
+              Rule
             </Link>
           </nav>
         </div>

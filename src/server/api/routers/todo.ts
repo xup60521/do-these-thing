@@ -39,6 +39,7 @@ export const todoRouter = createTRPCRouter({
         .set({ todoChecked: input.checked })
         .where(eq(todos.todoId, input.todoId));
       revalidatePath("/do-these-things");
+      revalidatePath("/do-these-things/task-library")
       revalidatePath("/do-these-things/group");
     }),
   editTodo: protectedProcedure
@@ -84,6 +85,7 @@ export const todoRouter = createTRPCRouter({
         groupOwner: ctx.session.user.id,
       });
       revalidatePath("/do-these-things");
+      revalidatePath("/do-these-things/task-library")
       revalidatePath("/do-these-things/group");
     }),
   editGroup: protectedProcedure
@@ -102,6 +104,7 @@ export const todoRouter = createTRPCRouter({
         .set({ groupTitle, groupDescription, groupInvisible })
         .where(eq(groups.groupId, groupId));
       revalidatePath("/do-these-things");
+      revalidatePath("/do-these-things/task-library")
       revalidatePath("/do-these-things/group");
     }),
   deleteGroup: protectedProcedure

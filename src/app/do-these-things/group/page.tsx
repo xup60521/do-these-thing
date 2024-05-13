@@ -31,7 +31,7 @@ export default async function Group() {
   return (
     <div className="flex w-[70rem] max-w-full flex-col px-16">
       <h1 className="w-full py-16 text-left font-mono text-2xl font-bold">
-        <span>Groups</span>
+        <span>Group</span>
       </h1>
       <div className="flex min-h-0 w-full min-w-0 flex-col">
         <div className="flex w-full flex-wrap">

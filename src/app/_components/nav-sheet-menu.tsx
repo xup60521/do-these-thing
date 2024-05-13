@@ -40,7 +40,7 @@ export default function NavSheetMenu({
               href="/do-these-things/group"
               onClick={() => setOpenNav(false)}
             >
-              Groups
+              Group
             </Link>
             <Link
               className="rounded-full px-4 py-2 transition hover:bg-neutral-200"
