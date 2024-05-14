@@ -64,18 +64,18 @@ async function DisplayGroups({ session }: { session: Session }) {
         <div className="flex w-full flex-grow flex-wrap gap-2 py-4">
           <Link
             href={"group/default"}
-            className="flex h-fit items-center rounded-md bg-white"
+            className="flex items-center rounded-md bg-white"
           >
             <h4 className="w-full p-2 font-mono text-sm text-neutral-700">
               default
             </h4>
-            <div className="flex items-center justify-center gap-1 rounded-l bg-orange-200 px-2 py-2 text-red-700">
+            <div className="flex items-center h-full justify-center gap-1 rounded-l bg-orange-200 px-2 py-2 text-red-700">
               <span className="text-center">
                 <MdCheckBoxOutlineBlank />
               </span>
               <span className="text-center font-mono text-sm">{`${defaultGroup.filter((d) => !d.todoChecked).length}`}</span>
             </div>
-            <div className="flex items-center justify-center gap-1 rounded-r-md bg-green-200 px-2 py-2 text-neutral-700">
+            <div className="flex items-center h-full justify-center gap-1 rounded-r-md bg-green-200 px-2 py-2 text-neutral-700">
               <span className="text-center">
                 <MdCheckBox />
               </span>
@@ -87,19 +87,19 @@ async function DisplayGroups({ session }: { session: Session }) {
             .map((item) => (
               <Link
                 href={`group/${item.groupId}`}
-                className="flex h-fit items-center rounded-md bg-white"
+                className="flex items-center rounded-md bg-white"
                 key={`group itr ${item.groupId}`}
               >
                 <h4 className="w-full p-2 font-mono text-sm text-neutral-700">
                   {item.groupTitle}
                 </h4>
-                <div className="flex items-center justify-center gap-1 rounded-l bg-orange-200 px-2 py-2 text-red-700">
+                <div className="flex items-center h-full justify-center gap-1 rounded-l bg-orange-200 px-2 py-2 text-red-700">
                   <span className="text-center">
                     <MdCheckBoxOutlineBlank />
                   </span>
                   <span className="text-center font-mono text-sm">{`${item.todos.filter((d) => !d.todoChecked).length}`}</span>
                 </div>
-                <div className="flex items-center justify-center gap-1 rounded-r-md bg-green-200 px-2 py-2 text-neutral-700">
+                <div className="flex items-center h-full justify-center gap-1 rounded-r-md bg-green-200 px-2 py-2 text-neutral-700">
                   <span className="text-center">
                     <MdCheckBox />
                   </span>
@@ -117,19 +117,19 @@ async function DisplayGroups({ session }: { session: Session }) {
             .map((item) => (
               <Link
                 href={`group/${item.groupId}`}
-                className="flex h-fit items-center rounded-md bg-white"
+                className="flex items-center rounded-md bg-white"
                 key={`group itr ${item.groupId}`}
               >
                 <h4 className="w-full p-2 font-mono text-sm text-neutral-700">
                   {item.groupTitle}
                 </h4>
-                <div className="flex items-center justify-center gap-1 rounded-l bg-orange-200 px-2 py-2 text-red-700">
+                <div className="flex items-center h-full justify-center gap-1 rounded-l bg-orange-200 px-2 py-2 text-red-700">
                   <span className="text-center">
                     <MdCheckBoxOutlineBlank />
                   </span>
                   <span className="text-center font-mono text-sm">{`${item.todos.filter((d) => !d.todoChecked).length}`}</span>
                 </div>
-                <div className="flex items-center justify-center gap-1 rounded-r-md bg-green-200 px-2 py-2 text-neutral-700">
+                <div className="flex items-center h-full justify-center gap-1 rounded-r-md bg-green-200 px-2 py-2 text-neutral-700">
                   <span className="text-center">
                     <MdCheckBox />
                   </span>

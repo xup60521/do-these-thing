@@ -56,46 +56,46 @@ export default function CreateRule({
       toast("Name is required");
       return;
     }
-    switch (selectedType) {
-      case "conditional-add":
-        mutation
-          .mutateAsync({
-            ruleTitle: inputName,
-            ruleDescription: inputDescription,
-            ruleType: selectedType,
-            ruleDetailJson: {
-              fromGroup,
-              toGroup,
-              targetNumber,
-              targetTodoName,
-            },
-            ruleGateNumber: gateNumber,
-          })
-          .then(() => {
-            setOpen(false);
-            router.refresh();
-          })
-          .catch((err) => alert(err));
-      case "planned-toggle-group":
-        mutation
-          .mutateAsync({
-            ruleTitle: inputName,
-            ruleDescription: inputDescription,
-            ruleType: selectedType,
-            ruleDetailJson: {
-              fromGroup,
-              toGroup,
-              targetInvisibility,
-            },
-            ruleGateNumber: gateNumber,
-          })
-          .then(() => {
-            setOpen(false);
-            router.refresh();
-          })
-          .catch((err) => alert(err));
+    if (selectedType === "conditional-add") {
+      mutation
+        .mutateAsync({
+          ruleTitle: inputName,
+          ruleDescription: inputDescription,
+          ruleType: selectedType,
+          ruleDetailJson: {
+            fromGroup,
+            toGroup,
+            targetNumber,
+            targetTodoName: targetTodoName === "" ? "new to-do" : targetTodoName,
+          },
+          ruleGateNumber: gateNumber,
+        })
+        .then(() => {
+          setOpen(false);
+          router.refresh();
+        })
+        .catch((err) => alert(err));
+      return;
     }
-    return;
+    if ("planned-toggle-group" === selectedType) {
+      mutation
+        .mutateAsync({
+          ruleTitle: inputName,
+          ruleDescription: inputDescription,
+          ruleType: selectedType,
+          ruleDetailJson: {
+            fromGroup,
+            toGroup,
+            targetInvisibility,
+          },
+          ruleGateNumber: gateNumber,
+        })
+        .then(() => {
+          setOpen(false);
+          router.refresh();
+        })
+        .catch((err) => alert(err));
+    }
   }
 
   return (
