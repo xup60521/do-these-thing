@@ -146,5 +146,22 @@ export const todoRouter = createTRPCRouter({
             ruleGateNumber,
         })
         revalidatePath("/do-these-things/rule")
+    }),
+    updateRule: protectedProcedure.input(z.object({
+        ruleId: z.string(),
+        ruleTitle: z.string(),
+        ruleDescription: z.string(),
+        ruleDetailJson: RuleDetailJsonSchema,
+        ruleGateNumber: z.number(),
+        ruleEnable: z.boolean()
+    })).mutation(async ({ctx, input}) => {
+        await ctx.db.update(rules).set({...input}).where(eq(rules.ruleId, input.ruleId))
+        revalidatePath("/do-these-things/rule")
+    }),
+    deleteRule: protectedProcedure.input(z.object({
+        ruleId: z.string()
+    })).mutation(async ({ctx, input}) => {
+        await ctx.db.delete(rules).where(eq(rules.ruleId, input.ruleId))
+        revalidatePath("/do-these-things/rule")
     })
 });

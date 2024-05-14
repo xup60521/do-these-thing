@@ -8,6 +8,7 @@ import {
   type groups as GroupTable,
 } from "@/server/db/schema";
 import { type InferSelectModel } from "drizzle-orm";
+import Link from "next/link";
 import { redirect } from "next/navigation";
 import { MdEdit } from "react-icons/md";
 
@@ -44,7 +45,7 @@ export default async function RulePage({
             </Label>
           )}
 
-          <EditRule groups={groups}>
+          <EditRule groups={groups} rule={rule}>
             <button
               id="edit rule"
               className="translate-y-[0.05rem] rounded-full bg-white p-2 text-sm ring-green-200 transition hover:ring-2"
@@ -94,9 +95,9 @@ function DisplayDetail({
               <div
                 className={`h-fit flex w-fit flex-shrink items-center justify-center gap-1 rounded bg-stone-400 px-2 py-2 text-neutral-800`}
               >
-                <span className="text-center font-mono text-sm">
+                <Link href={`/do-these-things/group/${rule.ruleDetailJson.fromGroup ?? "default"}`} className="text-center font-mono text-sm">
                   {`from: ${thisFromGroup}`}
-                </span>
+                </Link>
               </div>
               <div
                 className={`h-fit flex w-fit flex-shrink items-center justify-center gap-1 rounded ${getRuleTypeColor({ ruleType: rule?.ruleType })} px-2 py-2`}
@@ -108,9 +109,9 @@ function DisplayDetail({
               <div
                 className={`h-fit flex w-fit flex-shrink items-center justify-center gap-1 rounded bg-neutral-500 px-2 py-2 text-white`}
               >
-                <span className="text-center font-mono text-sm">
+                <Link href={`/do-these-things/group/${rule.ruleDetailJson.toGroup ?? "default"}`} className="text-center font-mono text-sm">
                   {`to: ${thisToGroup}`}
-                </span>
+                </Link>
               </div>
               <div
                 className={`h-fit flex w-fit flex-shrink items-center justify-center gap-1 rounded bg-violet-900 px-2 py-2 text-white`}

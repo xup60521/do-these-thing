@@ -160,16 +160,18 @@ export const todosRelations = relations(todos, ({ one }) => ({
 }));
 
 export const ruleTypeEnum = ["conditional-add", "planned-toggle-group"] as [string, ...string[]]
-export const RuleDetailJsonSchema = z.union([z.object({
+export const RuleDetailJson_ConditionalAddSchema = z.object({
     fromGroup: z.string().nullable(),
     toGroup: z.string().nullable(),
     targetNumber: z.number(),
     targetTodoName: z.string()
-}), z.object({
+})
+export const RuleDetailJson_PlannedToggleGroupSchema = z.object({
     fromGroup: z.string().nullable(),
     toGroup: z.string().nullable(),
     targetInvisibility: z.boolean()
-})])
+})
+export const RuleDetailJsonSchema = z.union([RuleDetailJson_ConditionalAddSchema, RuleDetailJson_PlannedToggleGroupSchema])
 
 export const rules = createTable("rule", {
   ruleId: varchar("ruleId", { length: 255 }).notNull().primaryKey(),

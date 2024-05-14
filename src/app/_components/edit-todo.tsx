@@ -19,7 +19,14 @@ import { type InferSelectModel } from "drizzle-orm";
 import { Fragment, useState } from "react";
 import ReactSelect from "react-select";
 import { toast } from "sonner";
-import { AlertDialog, AlertDialogCancel, AlertDialogContent, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
+import {
+  AlertDialog,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { useRouter } from "next/navigation";
 
 export default function EditTodo({
@@ -39,10 +46,10 @@ export default function EditTodo({
   const [selectedGroup, setSelectedGroup] = useState<string | null>(
     todo.groupId,
   );
-  const [openAlertDialog, setOpenAlertDialog] = useState(false)
+  const [openAlertDialog, setOpenAlertDialog] = useState(false);
   const todoMutation = api.todo.editTodo.useMutation();
-  const deleteTodoMutation = api.todo.deleteTodo.useMutation()
-  const router = useRouter()
+  const deleteTodoMutation = api.todo.deleteTodo.useMutation();
+  const router = useRouter();
   const selectOptions = [
     { label: "default", value: null },
     ...groups.map((d) => ({ label: d.groupTitle, value: d.groupId })),
@@ -54,25 +61,31 @@ export default function EditTodo({
   }
   function handleSave() {
     if (!inputTitle) {
-        toast("Title is required")
-        return;
+      toast("Title is required");
+      return;
     }
-    todoMutation.mutateAsync({
+    todoMutation
+      .mutateAsync({
         todoId: todo.todoId,
         todoTitle: inputTitle,
         todoDescription: inputDescription,
-        todoGroup: selectedGroup
-    }).then(()=>{
-        handleCloseDialog(false)
-    }).catch(err => alert(err))
+        todoGroup: selectedGroup,
+      })
+      .then(() => {
+        handleCloseDialog(false);
+      })
+      .catch((err) => alert(err));
   }
   function handleDeleteTodo() {
-    deleteTodoMutation.mutateAsync({
-        todoId: todo.todoId
-    }).then(()=>{
-        setOpenAlertDialog(false)
-        router.refresh()
-    }).catch(err => alert(err))
+    deleteTodoMutation
+      .mutateAsync({
+        todoId: todo.todoId,
+      })
+      .then(() => {
+        setOpenAlertDialog(false);
+        router.refresh();
+      })
+      .catch((err) => alert(err));
   }
 
   return (
@@ -113,30 +126,46 @@ export default function EditTodo({
                 id="input-group"
                 options={selectOptions}
                 className="col-span-3"
-                defaultValue={selectOptions.find(item => item.value === selectedGroup) ?? {label: "default", value: null}}
-                onChange={e => setSelectedGroup(e?.value ?? null)}
+                defaultValue={
+                  selectOptions.find(
+                    (item) => item.value === selectedGroup,
+                  ) ?? { label: "default", value: null }
+                }
+                onChange={(e) => setSelectedGroup(e?.value ?? null)}
               />
             </div>
           </div>
           <DialogFooter className="gap-1">
-            <Button variant="destructive" onClick={()=>{
-                setOpenDialog(false)
-                setOpenAlertDialog(true)
-            }}>Delete</Button>
+            <Button
+              variant="destructive"
+              onClick={() => {
+                setOpenDialog(false);
+                setOpenAlertDialog(true);
+              }}
+            >
+              Delete
+            </Button>
             <Button onClick={handleSave}>Save</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
       <AlertDialog open={openAlertDialog} onOpenChange={setOpenAlertDialog}>
-            <AlertDialogContent className={`${deleteTodoMutation.isPending && "cursor-wait"}`}>
-                <AlertDialogHeader>
-                    <AlertDialogTitle>Delete a to-do</AlertDialogTitle>
-                </AlertDialogHeader>
-                <AlertDialogFooter className="">
-                    <AlertDialogCancel>Cancel</AlertDialogCancel>
-                    <Button onClick={handleDeleteTodo} className={`${deleteTodoMutation.isPending && "cursor-wait"}`}>Sure</Button>
-                </AlertDialogFooter>
-            </AlertDialogContent>
+        <AlertDialogContent
+          className={`${deleteTodoMutation.isPending && "cursor-wait"}`}
+        >
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete a to-do</AlertDialogTitle>
+          </AlertDialogHeader>
+          <AlertDialogFooter className="">
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <Button
+              onClick={handleDeleteTodo}
+              className={`${deleteTodoMutation.isPending && "cursor-wait"}`}
+            >
+              Sure
+            </Button>
+          </AlertDialogFooter>
+        </AlertDialogContent>
       </AlertDialog>
     </Fragment>
   );
