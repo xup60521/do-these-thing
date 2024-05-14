@@ -9,8 +9,10 @@ import {
   timestamp,
   varchar,
   boolean,
+  json,
 } from "drizzle-orm/pg-core";
 import { type AdapterAccount } from "next-auth/adapters";
+import { z } from "zod";
 
 /**
  * This is an example of how to use the multi-project schema feature of Drizzle ORM. Use the same
@@ -157,16 +159,17 @@ export const todosRelations = relations(todos, ({ one }) => ({
   }),
 }));
 
-type FromGroup = string
-type ToGroup = string
-type TargetNumber = string
-type TargetTodoName = string
-type TargetGroupVisibility = string // 0, 1
-type RuleDetailType = 
-[FromGroup, ToGroup, TargetNumber, TargetTodoName] | 
-[FromGroup, ToGroup, TargetGroupVisibility]
-
 export const ruleTypeEnum = ["conditional-add", "planned-toggle-group"] as [string, ...string[]]
+export const RuleDetailJsonSchema = z.union([z.object({
+    fromGroup: z.string().nullable(),
+    toGroup: z.string().nullable(),
+    targetNumber: z.number(),
+    targetTodoName: z.string()
+}), z.object({
+    fromGroup: z.string().nullable(),
+    toGroup: z.string().nullable(),
+    targetInvisibility: z.boolean()
+})])
 
 export const rules = createTable("rule", {
   ruleId: varchar("ruleId", { length: 255 }).notNull().primaryKey(),
@@ -178,7 +181,7 @@ export const rules = createTable("rule", {
   ruleType: text("ruleType", {
     enum: ruleTypeEnum,
   }).notNull(),
-  ruleDetail: text("ruleDetail").array().$type<RuleDetailType>(),
+  ruleDetailJson: json("ruleDetailJson").notNull().$type<z.infer<typeof RuleDetailJsonSchema>>(),
   ruleEnable: boolean("ruleEnable").notNull(),
   ruleCreatedAt: timestamp("ruleCreatedAt", { withTimezone: true })
     .default(sql`CURRENT_TIMESTAMP`)

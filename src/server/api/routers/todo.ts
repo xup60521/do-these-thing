@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { createTRPCRouter, protectedProcedure } from "@/server/api/trpc";
-import { groups, ruleTypeEnum, rules, todos } from "@/server/db/schema";
+import { RuleDetailJsonSchema, groups, ruleTypeEnum, rules, todos } from "@/server/db/schema";
 import { v4 } from "uuid";
 import { revalidatePath } from "next/cache";
 import { InferSelectModel, eq } from "drizzle-orm";
@@ -130,21 +130,21 @@ export const todoRouter = createTRPCRouter({
         ruleTitle: z.string(),
         ruleDescription: z.string(),
         ruleType: z.enum(ruleTypeEnum),
-        ruleDetail: z.string().array().min(3).max(4),
+        ruleDetailJson: RuleDetailJsonSchema,
         ruleGateNumber: z.number()
     })).mutation(async ({ctx, input}) => {
-        const {ruleTitle, ruleDescription, ruleType, ruleGateNumber} = input
+        const {ruleTitle, ruleDescription, ruleType, ruleGateNumber, ruleDetailJson} = input
         const ruleId = v4()
-        const ruleDetail = input.ruleDetail as [string, string, string] | [string, string, string, string]
         await ctx.db.insert(rules).values({
             ruleId,
             ruleOwner: ctx.session.user.id,
             ruleTitle,
             ruleDescription,
             ruleType,
-            ruleDetail,
+            ruleDetailJson,
             ruleEnable: true,
             ruleGateNumber,
         })
+        revalidatePath("/do-these-things/rule")
     })
 });

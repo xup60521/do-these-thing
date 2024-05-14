@@ -19,6 +19,7 @@ import { toast } from "sonner";
 import { ruleTypeEnum } from "@/server/db/schema";
 import ReactSelect from "react-select";
 import { api } from "@/trpc/react";
+import { useRouter } from "next/navigation";
 
 const ruleTypeOptions = ruleTypeEnum.map((d) => ({
   label: d,
@@ -37,11 +38,13 @@ export default function CreateRule({
   const [inputDescription, setInputDescription] = useState("");
   const [selectedType, setSelectedType] = useState(ruleTypeEnum[0]);
   const [fromGroup, setFromGroup] = useState<string | null>(null);
-  const [targetGroup, setTargetGroup] = useState<string | null>(null);
+  const [toGroup, setToGroup] = useState<string | null>(null);
   const [gateNumber, setGateNumber] = useState(1);
   const [targetNumber, setTargetNumber] = useState(1);
   const [targetTodoName, setTargetTodoName] = useState("");
+  const [targetInvisibility, setTargetInvisibility] = useState(false);
   const mutation = api.todo.createRule.useMutation();
+  const router = useRouter();
   function onDialogOpenChange(e: boolean) {
     setOpen(e);
     setInputName("");
@@ -53,25 +56,46 @@ export default function CreateRule({
       toast("Name is required");
       return;
     }
-    if (selectedType === "conditional-add") {
-      mutation
-        .mutateAsync({
-          ruleTitle: inputName,
-          ruleDescription: inputDescription,
-          ruleType: selectedType,
-          ruleDetail: [
-            `${fromGroup}`,
-            `${targetGroup}`,
-            String(targetNumber),
-            targetTodoName ?? "new to-do",
-          ],
-          ruleGateNumber: targetNumber,
-        })
-        .then(() => {
-          setOpen(false);
-        })
-        .catch((err) => alert(err));
+    switch (selectedType) {
+      case "conditional-add":
+        mutation
+          .mutateAsync({
+            ruleTitle: inputName,
+            ruleDescription: inputDescription,
+            ruleType: selectedType,
+            ruleDetailJson: {
+              fromGroup,
+              toGroup,
+              targetNumber,
+              targetTodoName,
+            },
+            ruleGateNumber: gateNumber,
+          })
+          .then(() => {
+            setOpen(false);
+            router.refresh();
+          })
+          .catch((err) => alert(err));
+      case "planned-toggle-group":
+        mutation
+          .mutateAsync({
+            ruleTitle: inputName,
+            ruleDescription: inputDescription,
+            ruleType: selectedType,
+            ruleDetailJson: {
+              fromGroup,
+              toGroup,
+              targetInvisibility,
+            },
+            ruleGateNumber: gateNumber,
+          })
+          .then(() => {
+            setOpen(false);
+            router.refresh();
+          })
+          .catch((err) => alert(err));
     }
+    return;
   }
 
   return (
@@ -125,13 +149,23 @@ export default function CreateRule({
               <TypeConditionalAdd
                 groups={groups}
                 setFromGroup={setFromGroup}
-                setTargetGroup={setTargetGroup}
+                setToGroup={setToGroup}
                 gateNumber={gateNumber}
                 setGateNumber={setGateNumber}
                 targetNumber={targetNumber}
                 setTargetNumber={setTargetNumber}
                 targetTodoName={targetTodoName}
                 setTargetTodoName={setTargetTodoName}
+              />
+            )}
+            {selectedType === "planned-toggle-group" && (
+              <TypePlannedToggleGroup
+                groups={groups}
+                setFromGroup={setFromGroup}
+                setToGroup={setToGroup}
+                gateNumber={gateNumber}
+                setGateNumber={setGateNumber}
+                setTargetInvisibility={setTargetInvisibility}
               />
             )}
           </div>
@@ -152,7 +186,7 @@ export default function CreateRule({
 function TypeConditionalAdd(props: {
   groups: InferSelectModel<typeof GroupTable>[];
   setFromGroup: React.Dispatch<React.SetStateAction<string | null>>;
-  setTargetGroup: React.Dispatch<React.SetStateAction<string | null>>;
+  setToGroup: React.Dispatch<React.SetStateAction<string | null>>;
   gateNumber: number;
   setGateNumber: React.Dispatch<React.SetStateAction<number>>;
   targetNumber: number;
@@ -163,7 +197,7 @@ function TypeConditionalAdd(props: {
   const {
     groups,
     setFromGroup,
-    setTargetGroup,
+    setToGroup,
     gateNumber,
     setGateNumber,
     targetNumber,
@@ -204,9 +238,9 @@ function TypeConditionalAdd(props: {
         />
       </div>
       <div className="grid grid-cols-4 items-center">
-        <Label htmlFor="rule-input-targetgroup">target group</Label>
+        <Label htmlFor="rule-input-toGroup">target group</Label>
         <ReactSelect
-          id="rule-input-targetgroup"
+          id="rule-input-toGroup"
           options={selectOptions}
           defaultValue={
             { label: "default", value: null } as {
@@ -214,7 +248,7 @@ function TypeConditionalAdd(props: {
               value: string | null;
             }
           }
-          onChange={(e) => setTargetGroup(e?.value ?? null)}
+          onChange={(e) => setToGroup(e?.value ?? null)}
           className="col-span-3"
         />
       </div>
@@ -240,6 +274,87 @@ function TypeConditionalAdd(props: {
           className="col-span-3"
           placeholder="new to-do"
           maxLength={255}
+        />
+      </div>
+    </Fragment>
+  );
+}
+
+const invisibilityOptions = [
+  { label: "hidden", value: true },
+  { label: "visible", value: false },
+];
+
+function TypePlannedToggleGroup(props: {
+  groups: InferSelectModel<typeof GroupTable>[];
+  setFromGroup: React.Dispatch<React.SetStateAction<string | null>>;
+  setToGroup: React.Dispatch<React.SetStateAction<string | null>>;
+  gateNumber: number;
+  setGateNumber: React.Dispatch<React.SetStateAction<number>>;
+  setTargetInvisibility: React.Dispatch<React.SetStateAction<boolean>>;
+}) {
+  const {
+    groups,
+    setFromGroup,
+    setToGroup,
+    setTargetInvisibility,
+    gateNumber,
+    setGateNumber,
+  } = props;
+  const fromGroupSelectOptions = [
+    { label: "default", value: null },
+    ...groups.map((d) => ({ label: d.groupTitle, value: d.groupId })),
+  ];
+  const toGroupSelectOptions = groups.map((d) => ({
+    label: d.groupTitle,
+    value: d.groupId,
+  }));
+
+  return (
+    <Fragment>
+      <div className="grid grid-cols-4 items-center">
+        <Label htmlFor="rule-input-fromGroup">from group</Label>
+        <ReactSelect
+          id="rule-input-fromGroup"
+          options={fromGroupSelectOptions}
+          defaultValue={
+            { label: "default", value: null } as {
+              label: string;
+              value: string | null;
+            }
+          }
+          onChange={(e) => setFromGroup(e?.value ?? null)}
+          className="col-span-3"
+        />
+      </div>
+      <div className="grid grid-cols-4 items-center">
+        <Label htmlFor="rule-input-toGroup">to group</Label>
+        <ReactSelect
+          id="rule-input-toGroup"
+          options={toGroupSelectOptions}
+          defaultValue={toGroupSelectOptions[0]}
+          onChange={(e) => setToGroup(e?.value ?? null)}
+          className="col-span-3"
+        />
+      </div>
+      <div className="grid grid-cols-4 items-center">
+        <Label htmlFor="rule-input-todo-gate">to-do count gate</Label>
+        <Input
+          id="rule-input-todo-gate"
+          type="number"
+          value={gateNumber}
+          onChange={(e) => setGateNumber(Number(e.target.value))}
+          className="col-span-3"
+        />
+      </div>
+      <div className="grid grid-cols-4 items-center">
+        <Label htmlFor="rule-input-inv">toggle invisibility</Label>
+        <ReactSelect
+          id="rule-input-inv"
+          options={invisibilityOptions}
+          defaultValue={invisibilityOptions[0]}
+          onChange={(e) => setTargetInvisibility(e?.value ?? true)}
+          className="col-span-3"
         />
       </div>
     </Fragment>
