@@ -44,7 +44,6 @@ export default async function RulePage({
               </div>
             </Label>
           )}
-
           <EditRule groups={groups} rule={rule}>
             <button
               id="edit rule"
@@ -133,5 +132,55 @@ function DisplayDetail({
         </div>
       );
   }
+  if ('targetInvisibility' in rule.ruleDetailJson) {
+    
+    return (
+      <div className="flex min-h-0 w-full min-w-0 flex-col">
+        <div className="flex w-full flex-wrap">
+          <div className="flex w-full items-center gap-2 border-b-[1px] border-neutral-400 py-2 font-bold text-neutral-500">
+            detail
+          </div>
+          <div className="flex w-full flex-grow flex-wrap gap-3 py-4">
+            <div
+              className={`h-fit flex w-fit flex-shrink items-center justify-center gap-1 rounded px-2 py-2 ${getRuleTypeColor({ ruleType: rule?.ruleType })}`}
+            >
+              <span className="w-fit text-center font-mono text-sm">
+                {rule?.ruleType}
+              </span>
+            </div>
+            <div
+              className={`h-fit flex w-fit flex-shrink items-center justify-center gap-1 rounded bg-stone-400 px-2 py-2 text-neutral-800`}
+            >
+              <Link href={`/do-these-things/group/${rule.ruleDetailJson.fromGroup ?? "default"}`} className="text-center font-mono text-sm">
+                {`from: ${thisFromGroup}`}
+              </Link>
+            </div>
+            <div
+              className={`h-fit flex w-fit flex-shrink items-center justify-center gap-1 rounded ${getRuleTypeColor({ ruleType: rule?.ruleType })} px-2 py-2`}
+            >
+              <span className="text-center font-mono text-sm">
+                {`to-do gate: ${rule.ruleGateNumber}`}
+              </span>
+            </div>
+            <div
+              className={`h-fit flex w-fit flex-shrink items-center justify-center gap-1 rounded bg-neutral-500 px-2 py-2 text-white`}
+            >
+              <Link href={`/do-these-things/group/${rule.ruleDetailJson.toGroup ?? "default"}`} className="text-center font-mono text-sm">
+                {`to: ${thisToGroup}`}
+              </Link>
+            </div>
+            <div
+              className={`h-fit flex w-fit flex-shrink items-center justify-center gap-1 rounded bg-violet-900 px-2 py-2 text-white`}
+            >
+              <span className="text-center font-mono text-sm">
+                {`target invisibility: ${rule.ruleDetailJson.targetInvisibility ? "hidden" : "show"}`}
+              </span>
+            </div>
+          </div>
+          {/* {JSON.stringify(rule)} */}
+        </div>
+      </div>
+    );
+}
   return null
 }

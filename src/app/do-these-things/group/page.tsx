@@ -109,7 +109,9 @@ async function DisplayGroups({ session }: { session: Session }) {
             ))}
         </div>
         <div className="flex w-full items-center gap-2 border-b-[1px] border-neutral-400 py-2 font-bold text-neutral-500">
-          <span>hidden</span>
+        <span className="w-fit rounded-full bg-red-400 p-1 px-2 font-mono text-xs text-white">
+            {"hidden"}
+          </span>
         </div>
         <div className="flex w-full flex-grow flex-wrap gap-2 py-4">
           {groups
