@@ -106,6 +106,13 @@ function DisplayDetail({
                 </span>
               </div>
               <div
+                className={`h-fit flex w-fit flex-shrink items-center justify-center gap-1 rounded ${getRuleTypeColor({ ruleType: rule?.ruleType })} px-2 py-2`}
+              >
+                <span className="text-center font-mono text-sm">
+                  {`current: ${rule.ruleCurrentNumber}`}
+                </span>
+              </div>
+              <div
                 className={`h-fit flex w-fit flex-shrink items-center justify-center gap-1 rounded bg-neutral-500 px-2 py-2 text-white`}
               >
                 <Link href={`/do-these-things/group/${rule.ruleDetailJson.toGroup ?? "default"}`} className="text-center font-mono text-sm">

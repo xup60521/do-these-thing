@@ -1,9 +1,16 @@
 import { z } from "zod";
 import { createTRPCRouter, protectedProcedure } from "@/server/api/trpc";
-import { RuleDetailJsonSchema, groups, ruleTypeEnum, rules, todos } from "@/server/db/schema";
+import {
+  RuleDetailJsonSchema,
+  RuleDetailJson_ConditionalAddSchema,
+  groups,
+  ruleTypeEnum,
+  rules,
+  todos,
+} from "@/server/db/schema";
 import { v4 } from "uuid";
 import { revalidatePath } from "next/cache";
-import { InferSelectModel, eq } from "drizzle-orm";
+import { and, eq, gte, sql } from "drizzle-orm";
 
 export const todoRouter = createTRPCRouter({
   createTodo: protectedProcedure
@@ -38,8 +45,62 @@ export const todoRouter = createTRPCRouter({
         .update(todos)
         .set({ todoChecked: input.checked })
         .where(eq(todos.todoId, input.todoId));
+      if (input.checked) {
+        await ctx.db
+          .update(rules)
+          .set({
+            ruleCurrentNumber: sql`${rules.ruleCurrentNumber} + 1`,
+          })
+          .where(
+            and(
+              eq(rules.ruleType, "conditional-add"),
+              eq(rules.ruleOwner, ctx.session.user.id),
+              eq(rules.ruleEnable,true)
+            ),
+          );
+      } else {
+        await ctx.db
+          .update(rules)
+          .set({
+            ruleCurrentNumber: sql`${rules.ruleCurrentNumber} - 1`,
+          })
+          .where(
+            and(
+              eq(rules.ruleType, "conditional-add"),
+              eq(rules.ruleOwner, ctx.session.user.id),
+              eq(rules.ruleEnable,true)
+            ),
+          );
+      }
+      const toUpdate = (await ctx.db
+        .update(rules)
+        .set({ ruleCurrentNumber: 0 })
+        .where(gte(rules.ruleCurrentNumber, rules.ruleGateNumber))
+        .returning({
+          ruleId: rules.ruleId,
+          ruleDetail: rules.ruleDetailJson,
+        })) as {
+        ruleId: string;
+        ruleDetail: z.infer<typeof RuleDetailJson_ConditionalAddSchema>;
+      }[];
+      const new_todos = toUpdate
+        .map((item) => {
+          return Array.from(new Array(item.ruleDetail.targetNumber)).map(() => {
+            const uuid = v4();
+            return {
+              todoId: uuid,
+              todoTitle: item.ruleDetail.targetTodoName,
+              groupId: item.ruleDetail.toGroup ?? "",
+              todoChecked: false,
+              todoOwner: ctx.session.user.id,
+              baseRule: item.ruleId,
+            };
+          });
+        })
+        .flat();
+      await ctx.db.insert(todos).values(new_todos);
       revalidatePath("/do-these-things");
-      revalidatePath("/do-these-things/task-library")
+      revalidatePath("/do-these-things/task-library");
       revalidatePath("/do-these-things/group");
     }),
   editTodo: protectedProcedure
@@ -52,22 +113,30 @@ export const todoRouter = createTRPCRouter({
       }),
     )
     .mutation(async ({ ctx, input }) => {
-        await ctx.db.update(todos).set({
-            todoTitle: input.todoTitle,
-            todoDescription: input.todoDescription,
-            groupId: input.todoGroup
-        }).where(eq(todos.todoId, input.todoId))
-        revalidatePath("/do-these-things");
-        revalidatePath("/do-these-things/task-library");
-        revalidatePath("/do-these-things/group");
+      await ctx.db
+        .update(todos)
+        .set({
+          todoTitle: input.todoTitle,
+          todoDescription: input.todoDescription,
+          groupId: input.todoGroup,
+        })
+        .where(eq(todos.todoId, input.todoId));
+
+      revalidatePath("/do-these-things");
+      revalidatePath("/do-these-things/task-library");
+      revalidatePath("/do-these-things/group");
     }),
-    deleteTodo: protectedProcedure.input(z.object({
+  deleteTodo: protectedProcedure
+    .input(
+      z.object({
         todoId: z.string(),
-    })).mutation(async ({ctx, input}) => {
-        await ctx.db.delete(todos).where(eq(todos.todoId, input.todoId))
-        revalidatePath("/do-these-things");
-        revalidatePath("/do-these-things/task-library");
-        revalidatePath("/do-these-things/group");
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      await ctx.db.delete(todos).where(eq(todos.todoId, input.todoId));
+      revalidatePath("/do-these-things");
+      revalidatePath("/do-these-things/task-library");
+      revalidatePath("/do-these-things/group");
     }),
   createGroup: protectedProcedure
     .input(
@@ -85,7 +154,7 @@ export const todoRouter = createTRPCRouter({
         groupOwner: ctx.session.user.id,
       });
       revalidatePath("/do-these-things");
-      revalidatePath("/do-these-things/task-library")
+      revalidatePath("/do-these-things/task-library");
       revalidatePath("/do-these-things/group");
     }),
   editGroup: protectedProcedure
@@ -104,7 +173,7 @@ export const todoRouter = createTRPCRouter({
         .set({ groupTitle, groupDescription, groupInvisible })
         .where(eq(groups.groupId, groupId));
       revalidatePath("/do-these-things");
-      revalidatePath("/do-these-things/task-library")
+      revalidatePath("/do-these-things/task-library");
       revalidatePath("/do-these-things/group");
     }),
   deleteGroup: protectedProcedure
@@ -126,42 +195,67 @@ export const todoRouter = createTRPCRouter({
       }
       await ctx.db.delete(groups).where(eq(groups.groupId, groupId));
     }),
-    createRule: protectedProcedure.input(z.object({
+  createRule: protectedProcedure
+    .input(
+      z.object({
         ruleTitle: z.string(),
         ruleDescription: z.string(),
         ruleType: z.enum(ruleTypeEnum),
         ruleDetailJson: RuleDetailJsonSchema,
-        ruleGateNumber: z.number()
-    })).mutation(async ({ctx, input}) => {
-        const {ruleTitle, ruleDescription, ruleType, ruleGateNumber, ruleDetailJson} = input
-        const ruleId = v4()
-        await ctx.db.insert(rules).values({
-            ruleId,
-            ruleOwner: ctx.session.user.id,
-            ruleTitle,
-            ruleDescription,
-            ruleType,
-            ruleDetailJson,
-            ruleEnable: true,
-            ruleGateNumber,
-        })
-        revalidatePath("/do-these-things/rule")
+        ruleGateNumber: z.number(),
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      const {
+        ruleTitle,
+        ruleDescription,
+        ruleType,
+        ruleGateNumber,
+        ruleDetailJson,
+      } = input;
+      const ruleId = v4();
+      await ctx.db.insert(rules).values({
+        ruleId,
+        ruleOwner: ctx.session.user.id,
+        ruleTitle,
+        ruleDescription,
+        ruleType,
+        ruleDetailJson,
+        ruleEnable: true,
+        ruleGateNumber,
+      });
+      revalidatePath("/do-these-things/rule");
     }),
-    updateRule: protectedProcedure.input(z.object({
+  updateRule: protectedProcedure
+    .input(
+      z.object({
         ruleId: z.string(),
         ruleTitle: z.string(),
         ruleDescription: z.string(),
         ruleDetailJson: RuleDetailJsonSchema,
         ruleGateNumber: z.number(),
-        ruleEnable: z.boolean()
-    })).mutation(async ({ctx, input}) => {
-        await ctx.db.update(rules).set({...input}).where(eq(rules.ruleId, input.ruleId))
-        revalidatePath("/do-these-things/rule")
+        ruleEnable: z.boolean(),
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      await ctx.db
+        .update(rules)
+        .set({ ...input })
+        .where(eq(rules.ruleId, input.ruleId));
+      revalidatePath("/do-these-things/rule");
     }),
-    deleteRule: protectedProcedure.input(z.object({
-        ruleId: z.string()
-    })).mutation(async ({ctx, input}) => {
-        await ctx.db.delete(rules).where(eq(rules.ruleId, input.ruleId))
-        revalidatePath("/do-these-things/rule")
-    })
+  deleteRule: protectedProcedure
+    .input(
+      z.object({
+        ruleId: z.string(),
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      await ctx.db
+        .update(todos)
+        .set({ baseRule: null })
+        .where(eq(todos.baseRule, input.ruleId));
+      await ctx.db.delete(rules).where(eq(rules.ruleId, input.ruleId));
+      revalidatePath("/do-these-things/rule");
+    }),
 });
