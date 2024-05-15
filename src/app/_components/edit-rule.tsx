@@ -331,6 +331,11 @@ function TypePlannedToggleGroup({
     { label: "default", value: null },
     ...groups.map((d) => ({ label: d.groupTitle, value: d.groupId })),
   ];
+  const selectnvisibilityOptions = [{
+    label: "show", value: false
+  }, {
+    label: "hidden", value: true
+  }]
   const targetSelectedGroupOptions = [...groups.map((d) => ({ label: d.groupTitle, value: d.groupId }))]
 
   function onDialogClose(e: boolean) {
@@ -457,10 +462,11 @@ function TypePlannedToggleGroup({
               <Label htmlFor="rule-input-todo-target-invisible">
                 target invisibility
               </Label>
-              <Checkbox
+              <ReactSelect
                 id="rule-input-todo-target-invisible"
-                checked={targetInvisible}
-                onCheckedChange={() => setTargetInvisible(!targetInvisible)}
+                options={selectnvisibilityOptions}
+                defaultValue={selectnvisibilityOptions.find(d => d.value === targetInvisible)}
+                onChange={(e) => setTargetInvisible(e?.value ?? false)}
                 className="col-span-3"
               />
             </div>
