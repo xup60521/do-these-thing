@@ -2,8 +2,8 @@
 
 import { type InferSelectModel } from "drizzle-orm";
 import {
-  RuleDetailJson_ConditionalAddSchema,
-  RuleDetailJson_PlannedToggleGroupSchema,
+  type RuleDetailJson_ConditionalAddSchema,
+  type RuleDetailJson_PlannedToggleGroupSchema,
   type groups as GroupTable,
   type rules as RuleTable,
 } from "@/server/db/schema";
@@ -21,7 +21,6 @@ import {
   AlertDialog,
   AlertDialogCancel,
   AlertDialogContent,
-  AlertDialogDescription,
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
@@ -454,7 +453,11 @@ function TypePlannedToggleGroup({
                 defaultValue={targetSelectedGroupOptions.find(
                   (d) => d.value === inputToGroup,
                 )}
-                onChange={(e) => setInputToGroup(e?.value ?? null)}
+                onChange={(e) => {
+                    if (e) {
+                        setInputToGroup(e.value)
+                    }
+                }}
                 className="col-span-3"
               />
             </div>

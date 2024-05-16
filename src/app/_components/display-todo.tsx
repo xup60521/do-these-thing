@@ -4,7 +4,6 @@ import type { todos as TodosType } from "@/server/db/schema";
 import { api } from "@/trpc/react";
 import { type InferSelectModel } from "drizzle-orm";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { useState } from "react";
 export default function DisplayTodo({
   item,
@@ -12,7 +11,6 @@ export default function DisplayTodo({
   item: InferSelectModel<typeof TodosType>;
 }) {
   const [checked, setChecked] = useState(item.todoChecked);
-  const router = useRouter();
   const mutation = api.todo.checkTodo.useMutation();
   function checkTodo() {
     if (mutation.isPending) {

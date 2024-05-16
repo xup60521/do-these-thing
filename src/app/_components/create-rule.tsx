@@ -77,7 +77,7 @@ export default function CreateRule({
         .catch((err) => alert(err));
       return;
     }
-    if ("planned-toggle-group" === selectedType) {
+    if ("planned-toggle-group" === selectedType && toGroup) {
       mutation
         .mutateAsync({
           ruleTitle: inputName,
