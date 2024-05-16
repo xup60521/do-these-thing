@@ -168,7 +168,7 @@ export const RuleDetailJson_ConditionalAddSchema = z.object({
 })
 export const RuleDetailJson_PlannedToggleGroupSchema = z.object({
     fromGroup: z.string().nullable(),
-    toGroup: z.string().nullable(),
+    toGroup: z.string(),
     targetInvisibility: z.boolean()
 })
 export const RuleDetailJsonSchema = z.union([RuleDetailJson_ConditionalAddSchema, RuleDetailJson_PlannedToggleGroupSchema])

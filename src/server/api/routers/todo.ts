@@ -2,7 +2,8 @@ import { z } from "zod";
 import { createTRPCRouter, protectedProcedure } from "@/server/api/trpc";
 import {
   RuleDetailJsonSchema,
-  RuleDetailJson_ConditionalAddSchema,
+  type RuleDetailJson_ConditionalAddSchema,
+  type RuleDetailJson_PlannedToggleGroupSchema,
   groups,
   ruleTypeEnum,
   rules,
@@ -10,7 +11,7 @@ import {
 } from "@/server/db/schema";
 import { v4 } from "uuid";
 import { revalidatePath } from "next/cache";
-import { and, eq, gte, sql } from "drizzle-orm";
+import { and, eq, gte, inArray, or, sql } from "drizzle-orm";
 
 export const todoRouter = createTRPCRouter({
   createTodo: protectedProcedure
@@ -53,9 +54,12 @@ export const todoRouter = createTRPCRouter({
           })
           .where(
             and(
-              eq(rules.ruleType, "conditional-add"),
+              or(
+                eq(rules.ruleType, "conditional-add"),
+                eq(rules.ruleType, "planned-toggle-group"),
+              ),
               eq(rules.ruleOwner, ctx.session.user.id),
-              eq(rules.ruleEnable,true)
+              eq(rules.ruleEnable, true),
             ),
           );
       } else {
@@ -66,16 +70,27 @@ export const todoRouter = createTRPCRouter({
           })
           .where(
             and(
-              eq(rules.ruleType, "conditional-add"),
+              or(
+                eq(rules.ruleType, "conditional-add"),
+                eq(rules.ruleType, "planned-toggle-group"),
+              ),
               eq(rules.ruleOwner, ctx.session.user.id),
-              eq(rules.ruleEnable,true)
+              eq(rules.ruleEnable, true),
             ),
           );
       }
-      const toUpdate = (await ctx.db
+      if (!input.checked) {
+        return;
+      }
+      const todoUpdate = (await ctx.db
         .update(rules)
         .set({ ruleCurrentNumber: 0 })
-        .where(gte(rules.ruleCurrentNumber, rules.ruleGateNumber))
+        .where(
+          and(
+            gte(rules.ruleCurrentNumber, rules.ruleGateNumber),
+            eq(rules.ruleType, "conditional-add"),
+          ),
+        )
         .returning({
           ruleId: rules.ruleId,
           ruleDetail: rules.ruleDetailJson,
@@ -83,26 +98,68 @@ export const todoRouter = createTRPCRouter({
         ruleId: string;
         ruleDetail: z.infer<typeof RuleDetailJson_ConditionalAddSchema>;
       }[];
-      const new_todos = toUpdate
+      const new_todos = todoUpdate
         .map((item) => {
-          return Array.from(new Array(item.ruleDetail.targetNumber)).map(() => {
-            const uuid = v4();
-            return {
-              todoId: uuid,
-              todoTitle: item.ruleDetail.targetTodoName,
-              groupId: item.ruleDetail.toGroup ?? "",
-              todoChecked: false,
-              todoOwner: ctx.session.user.id,
-              baseRule: item.ruleId,
-            };
-          });
+          if ("targetNumber" in item.ruleDetail) {
+            return Array.from(new Array(item.ruleDetail.targetNumber)).map(
+              () => {
+                const uuid = v4();
+                return {
+                  todoId: uuid,
+                  todoTitle: item.ruleDetail.targetTodoName,
+                  groupId: item.ruleDetail.toGroup ?? "",
+                  todoChecked: false,
+                  todoOwner: ctx.session.user.id,
+                  baseRule: item.ruleId,
+                };
+              },
+            );
+          }
+          return [];
         })
         .flat();
-      await ctx.db.insert(todos).values(new_todos);
+      if (new_todos.length > 0) {
+        await ctx.db.insert(todos).values(new_todos);
+      }
+      const groupUpdate = (await ctx.db
+        .update(rules)
+        .set({ ruleCurrentNumber: 0 })
+        .where(
+          and(
+            gte(rules.ruleCurrentNumber, rules.ruleGateNumber),
+            eq(rules.ruleType, "planned-toggle-group"),
+          ),
+        )
+        .returning({
+          ruleId: rules.ruleId,
+          ruleDetail: rules.ruleDetailJson,
+        })) as {
+        ruleId: string;
+        ruleDetail: z.infer<typeof RuleDetailJson_PlannedToggleGroupSchema>;
+      }[];
+      const groupTurnInvisible = groupUpdate
+        .filter((d) => d.ruleDetail.targetInvisibility)
+        .map((d) => d.ruleDetail.toGroup);
+      const groupTurnNotInvisible = groupUpdate
+        .filter((d) => !d.ruleDetail.targetInvisibility)
+        .map((d) => d.ruleDetail.toGroup);
+      if (groupTurnInvisible.length > 0) {
+        await ctx.db
+          .update(groups)
+          .set({ groupInvisible: true })
+          .where(inArray(groups.groupId, groupTurnInvisible));
+      }
+      if (groupTurnNotInvisible.length > 0) {
+        await ctx.db
+          .update(groups)
+          .set({ groupInvisible: false })
+          .where(inArray(groups.groupId, groupTurnNotInvisible));
+      }
       revalidatePath("/do-these-things");
       revalidatePath("/do-these-things/task-library");
       revalidatePath("/do-these-things/group");
     }),
+
   editTodo: protectedProcedure
     .input(
       z.object({
